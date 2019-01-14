@@ -3,3 +3,5 @@
 /node_modules
 
 variables.env
+
+/public/dist
