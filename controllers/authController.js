@@ -2,6 +2,8 @@ const passport = require('passport');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 
+const mail = require('../handlers/mail');
+
 const User = mongoose.model('User');
 
 exports.login = passport.authenticate('local', {
@@ -40,7 +42,14 @@ exports.forgot = async (req, res) => {
   await user.save();
   // Send them an email with the token
   const resetURL = `http://${req.headers.host}/account/reset/${user.resetPasswordToken}`;
-  req.flash('success', `You have been emailed a password reset link. ${resetURL}`);
+  // Sending an email with reset URL
+  await mail.send({
+    user,
+    resetURL,
+    subject: 'Password Reset',
+    filename: 'password-reset'
+  });
+  req.flash('success', 'You have been emailed a password reset link.');
   // Redirect to login page
   res.redirect('/login');
 };
