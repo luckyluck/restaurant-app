@@ -45,6 +45,7 @@ exports.resize = async (req, res, next) => {
 };
 
 exports.createStore = async (req, res) => {
+  req.body.author = req.user._id; // Setting active user as an author
   const store = await (new Store(req.body)).save();
   // Works only with sessions
   req.flash('success', `Successfully created <strong>${store.name}</strong>. Care to leave a review.`);
@@ -57,11 +58,17 @@ exports.getStores = async (req, res) => {
   res.render('stores', { title: 'Stores', stores });
 };
 
+const confirmOwner = (store, user) => {
+  if (!store.author.equals(user._id)) {
+    throw Error('You must own a store in order to edit it!');
+  }
+};
+
 exports.editStore = async (req, res) => {
   // Find the store by ID
   const store = await (Store.findById(req.params.id));
   // Confirm they are the owner of the store
-  // TODO confirmation
+  confirmOwner(store, req.user);
   // Render out the edit frm so the user can update their store
   res.render('editStore', { title: `Edit ${store.name}`, store });
 };
@@ -80,7 +87,7 @@ exports.updateStore = async (req, res) => {
 };
 
 exports.getStoreBySlug = async (req, res, next) => {
-  const store = await Store.findOne({ slug: req.params.slug });
+  const store = await Store.findOne({ slug: req.params.slug }).populate('author', ['name', 'email']);
   if (!store) return next();
   res.render('store', { title: store.name, store });
 };
