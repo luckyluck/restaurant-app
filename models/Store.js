@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const slug = require('slugs');
-
+// TODO clear data before save to remove everything dangerous
 const storeSchema = new mongoose.Schema({
   name: {
     type: String,
