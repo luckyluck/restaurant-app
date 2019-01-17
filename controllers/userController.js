@@ -39,3 +39,26 @@ exports.register = async (req, res, next) => {
   await User.register(user, req.body.password);
   next(); // pass to authController.login
 };
+
+exports.account = (req, res) => {
+  res.render('account', { title: 'Edit your account' });
+};
+
+exports.updateAccount = async (req, res) => {
+  const updates = {
+    name: req.body.name,
+    email: req.body.email
+  };
+  await User.findOneAndUpdate(
+    { _id: req.user._id },
+    { $set: updates },
+    {
+      new: true, // returns new updated instance of user
+      runValidators: true, // requires to run all model validators (initially, they run on create only)
+      context: 'query'
+    }
+  );
+
+  req.flash('success', 'Updated the profile!');
+  res.redirect('back'); // redirect on the URL you came from
+};
