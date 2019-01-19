@@ -47,5 +47,6 @@ router.get('/account/reset/:token', catchErrors(authController.isTokenValid), au
 router.post('/account/reset/:token', authController.confirmedPasswords, catchErrors(authController.update));
 
 router.get('/map', storeController.mapPage);
+router.get('/hearts', authController.isLoggedIn, catchErrors(storeController.getHearts));
 
 module.exports = router;
